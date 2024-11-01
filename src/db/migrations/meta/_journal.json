@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1730490859851,
+      "tag": "0000_nifty_umar",
+      "breakpoints": true
+    }
+  ]
+}
