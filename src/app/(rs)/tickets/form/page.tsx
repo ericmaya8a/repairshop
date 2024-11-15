@@ -1,6 +1,7 @@
 import { BackButton } from "@/components/BackButton";
 import { getCustomer } from "@/lib/queries/getCustomer";
 import { getTicket } from "@/lib/queries/getTicket";
+import { TicketForm } from "./TicketForm";
 
 export default async function TicketFormPage({
   searchParams,
@@ -44,7 +45,7 @@ export default async function TicketFormPage({
       );
     }
 
-    return <pre>{JSON.stringify(customer, null, 2)}</pre>;
+    return <TicketForm customer={customer} />;
   }
 
   if (ticketId) {
@@ -60,6 +61,6 @@ export default async function TicketFormPage({
       );
     }
 
-    return <pre>{JSON.stringify(ticket, null, 2)}</pre>;
+    return <TicketForm customer={ticket.customer} ticket={ticket} />;
   }
 }

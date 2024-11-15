@@ -1,7 +1,6 @@
 import { BackButton } from "@/components/BackButton";
-import { urls } from "@/constants";
 import { getCustomer } from "@/lib/queries/getCustomer";
-import { redirect } from "next/navigation";
+import { CustomerForm } from "./CustomerForm";
 
 export default async function CustomerFormPage({
   searchParams,
@@ -12,16 +11,18 @@ export default async function CustomerFormPage({
 
   if (customerId) {
     const customer = await getCustomer(parseInt(customerId));
-    if (customer) {
-      return <pre>{JSON.stringify(customer, null, 2)}</pre>;
+
+    if (!customer) {
+      return (
+        <>
+          <h2 className="text-2xl mb-2">Customer ID #{customerId} not found</h2>
+          <BackButton title="Go Back" variant="default" />
+        </>
+      );
     }
-    return (
-      <>
-        <h2 className="text-2xl mb-2">Customer ID #{customerId} not found</h2>
-        <BackButton title="Go Back" variant="default" />
-      </>
-    );
+
+    return <CustomerForm customer={customer} />;
   }
 
-  redirect(urls.CUSTOMERS);
+  return <CustomerForm />;
 }
