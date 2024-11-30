@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CheckboxWithLabel,
   InputWithLabel,
   SelectWithLabel,
   TextAreaWithLabel,
@@ -15,12 +16,19 @@ import {
 } from "@/zod-schemas/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 interface CustomerFormProps {
   customer?: selectCustomerSchemaType;
 }
 
 export function CustomerForm({ customer }: CustomerFormProps) {
+  const { getPermission, isLoading } = useKindeBrowserClient();
+  const isManager = !isLoading && getPermission("manager")?.isGranted;
+  const formTitle = customer?.id
+    ? `Edit Customer #${customer.id}`
+    : "New Customer Form";
+
   const defaultValues: insertCustomerSchemaType = {
     id: customer?.id ?? 0,
     firstName: customer?.firstName ?? "",
@@ -33,6 +41,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
     phone: customer?.phone ?? "",
     email: customer?.email ?? "",
     notes: customer?.notes ?? "",
+    active: customer?.active ?? true,
   };
 
   const form = useForm<insertCustomerSchemaType>({
@@ -47,9 +56,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
 
   return (
     <div className="flex flex-col gap-1 sm:px-8">
-      <h2 className="text-2xl font-bold">
-        {customer?.id ? "Edit" : "New"} Customer Form
-      </h2>
+      <h2 className="text-2xl font-bold">{formTitle}</h2>
       <Form {...form}>
         <form
           className="flex flex-col md:flex-row gap-4 md:gap-8"
@@ -101,6 +108,16 @@ export function CustomerForm({ customer }: CustomerFormProps) {
               nameInSchema="notes"
               className="h-40"
             />
+
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : isManager && customer?.id ? (
+              <CheckboxWithLabel<insertCustomerSchemaType>
+                fieldTitle="Active"
+                nameInSchema="active"
+                message="Yes"
+              />
+            ) : null}
 
             <div className="flex gap-2">
               <Button

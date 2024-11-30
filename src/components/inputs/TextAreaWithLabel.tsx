@@ -8,6 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { TextareaHTMLAttributes } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -36,7 +37,10 @@ export function TextAreaWithLabel<S>({
           <FormControl>
             <Textarea
               id={nameInSchema}
-              className={className}
+              className={cn(
+                "disabled:text-blue-500 dark:disabled:text-yellow-300 disabled:opacity-75",
+                className
+              )}
               {...props}
               {...field}
             />
