@@ -1,5 +1,7 @@
 "use client";
 
+import { saveTicketAction } from "@/actions/saveTicketAction";
+import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
 import {
   CheckboxWithLabel,
   InputWithLabel,
@@ -8,6 +10,7 @@ import {
 } from "@/components/inputs";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
 import { selectCustomerSchemaType } from "@/zod-schemas/customer";
 import {
   insertTicketSchema,
@@ -15,6 +18,8 @@ import {
   selectTicketSchemaType,
 } from "@/zod-schemas/ticket";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 
 interface TicketFormProps {
@@ -33,6 +38,24 @@ export function TicketForm({
   techs,
   isEditable = true,
 }: TicketFormProps) {
+  const { toast } = useToast();
+  const { execute, result, isPending, reset } = useAction(saveTicketAction, {
+    onSuccess({ data }) {
+      if (data?.message)
+        toast({
+          variant: "default",
+          title: "Success! 🎉",
+          description: data.message,
+        });
+    },
+    onError() {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Save Failed",
+      });
+    },
+  });
   const isManager = Array.isArray(techs);
   const formTitle =
     ticket?.id && isEditable
@@ -56,13 +79,19 @@ export function TicketForm({
     defaultValues,
   });
 
+  const handleReset = () => {
+    form.reset(defaultValues);
+    reset();
+  };
+
   const submitForm = (data: insertTicketSchemaType) => {
-    console.log(data);
+    execute(data);
   };
 
   return (
     <div className="flex flex-col gap-1 sm:px-8">
       <h2 className="text-2xl font-bold">{formTitle}</h2>
+      <DisplayServerActionResponse result={result} />
       <Form {...form}>
         <form
           className="flex flex-col gap-4 sm:flex-row sm:gap-8"
@@ -132,14 +161,19 @@ export function TicketForm({
                   className="w-3/4"
                   variant="default"
                   title="Save"
+                  disabled={isPending}
                 >
-                  Save
+                  {isPending ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="destructive"
                   title="Reset"
-                  onClick={() => form.reset(defaultValues)}
+                  onClick={handleReset}
                 >
                   Reset
                 </Button>

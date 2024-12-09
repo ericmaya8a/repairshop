@@ -17,6 +17,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useToast } from "@/hooks/use-toast";
+import { useAction } from "next-safe-action/hooks";
+import { saveCustomerAction } from "@/actions/saveCustomerAction";
+import { LoaderCircle } from "lucide-react";
+import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
 
 interface CustomerFormProps {
   customer?: selectCustomerSchemaType;
@@ -24,6 +29,24 @@ interface CustomerFormProps {
 
 export function CustomerForm({ customer }: CustomerFormProps) {
   const { getPermission, isLoading } = useKindeBrowserClient();
+  const { toast } = useToast();
+  const { execute, result, isPending, reset } = useAction(saveCustomerAction, {
+    onSuccess({ data }) {
+      if (data?.message)
+        toast({
+          variant: "default",
+          title: "Success! 🎉",
+          description: data.message,
+        });
+    },
+    onError() {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Save Failed",
+      });
+    },
+  });
   const isManager = !isLoading && getPermission("manager")?.isGranted;
   const formTitle = customer?.id
     ? `Edit Customer #${customer.id}`
@@ -50,12 +73,18 @@ export function CustomerForm({ customer }: CustomerFormProps) {
     defaultValues,
   });
 
+  const handleReset = () => {
+    form.reset(defaultValues);
+    reset();
+  };
+
   const submitForm = async (data: insertCustomerSchemaType) => {
-    console.log(data);
+    execute(data);
   };
 
   return (
     <div className="flex flex-col gap-1 sm:px-8">
+      <DisplayServerActionResponse result={result} />
       <h2 className="text-2xl font-bold">{formTitle}</h2>
       <Form {...form}>
         <form
@@ -125,14 +154,15 @@ export function CustomerForm({ customer }: CustomerFormProps) {
                 className="w-3/4"
                 variant="default"
                 title="Save"
+                disabled={isPending}
               >
-                Save
+                {isPending ? <LoaderCircle className="animate-spin" /> : "Save"}
               </Button>
               <Button
                 type="button"
                 variant="destructive"
                 title="Reset"
-                onClick={() => form.reset(defaultValues)}
+                onClick={handleReset}
               >
                 Reset
               </Button>
