@@ -1,17 +1,15 @@
 "use server";
 
-import { urls } from "@/constants";
 import { db } from "@/db";
 import { tickets } from "@/db/schema";
 import { actionClient } from "@/lib/save-action";
+import { validateIsAuthenticated } from "@/lib/serverUtils";
 import {
   insertTicketSchema,
   type insertTicketSchemaType,
 } from "@/zod-schemas/ticket";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { eq } from "drizzle-orm";
 import { flattenValidationErrors } from "next-safe-action";
-import { redirect } from "next/navigation";
 
 export const saveTicketAction = actionClient
   .metadata({ actionName: "saveTicketAction" })
@@ -25,10 +23,7 @@ export const saveTicketAction = actionClient
     }: {
       parsedInput: insertTicketSchemaType;
     }) => {
-      const { isAuthenticated } = getKindeServerSession();
-      const isAuth = await isAuthenticated();
-
-      if (!isAuth) redirect(urls.LOGIN);
+      await validateIsAuthenticated();
 
       // New ticket
       if (ticket.id === "(New)") {

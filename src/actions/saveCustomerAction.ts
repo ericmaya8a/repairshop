@@ -1,17 +1,15 @@
 "use server";
 
-import { urls } from "@/constants";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
 import { actionClient } from "@/lib/save-action";
+import { validateIsAuthenticated } from "@/lib/serverUtils";
 import {
   insertCustomerSchema,
   type insertCustomerSchemaType,
 } from "@/zod-schemas/customer";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { eq } from "drizzle-orm";
 import { flattenValidationErrors } from "next-safe-action";
-import { redirect } from "next/navigation";
 
 export const saveCustomerAction = actionClient
   .metadata({ actionName: "saveCustomerAction" })
@@ -25,10 +23,7 @@ export const saveCustomerAction = actionClient
     }: {
       parsedInput: insertCustomerSchemaType;
     }) => {
-      const { isAuthenticated } = getKindeServerSession();
-      const isAuth = await isAuthenticated();
-
-      if (!isAuth) redirect(urls.LOGIN);
+      await validateIsAuthenticated();
 
       // New customer
       // All new customers are active by default - no need to set active to true
