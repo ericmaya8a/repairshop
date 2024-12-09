@@ -1,9 +1,6 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Home",
-};
+import { urls } from "@/constants";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <h2>Home page</h2>;
+  redirect(urls.TICKETS);
 }

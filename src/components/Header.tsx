@@ -1,10 +1,16 @@
 import { ModeToggle } from "@/components/ModeToggle";
 import { NavButton } from "@/components/NavButton";
+import { NavButtonMenu } from "@/components/NavButtonMenu";
 import { Button } from "@/components/ui/button";
 import { urls } from "@/constants";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { File, HomeIcon, LogOut, UsersRound } from "lucide-react";
 import Link from "next/link";
+
+const customerChoices = [
+  { title: "Search Customers", href: urls.CUSTOMERS },
+  { title: "New Customers", href: `${urls.CUSTOMERS}/form` },
+];
 
 export function Header() {
   return (
@@ -28,10 +34,10 @@ export function Header() {
 
         <div className="flex items-center">
           <NavButton href={urls.TICKETS} label="Tickets" icon={File} />
-          <NavButton
-            href={urls.CUSTOMERS}
-            label="Customers"
+          <NavButtonMenu
             icon={UsersRound}
+            label="Customers Menu"
+            choices={customerChoices}
           />
           <ModeToggle />
           <Button
