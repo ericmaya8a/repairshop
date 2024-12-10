@@ -21,7 +21,7 @@ export default async function Tickets({
 
   return (
     <>
-      <SearchForm action={urls.TICKETS} placeholder="Search Tickets" />
+      <SearchForm baseUrl={urls.TICKETS} placeholder="Search Tickets" />
       <pre>{JSON.stringify(results, null, 2)}</pre>
     </>
   );
