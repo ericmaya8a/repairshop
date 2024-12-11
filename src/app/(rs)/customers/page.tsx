@@ -2,6 +2,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { urls } from "@/constants";
 import { getCustomerSearchResult } from "@/lib/queries/getCustomerSearchResults";
 import { Metadata } from "next";
+import { CustomerTable } from "./CustomerTable";
 
 export const metadata: Metadata = {
   title: "Customer Search",
@@ -24,7 +25,7 @@ export default async function Customers({
   return (
     <>
       <SearchForm baseUrl={urls.CUSTOMERS} placeholder="Search Customers" />
-      <pre>{JSON.stringify(results, null, 2)}</pre>
+      <CustomerTable data={results} />
     </>
   );
 }
