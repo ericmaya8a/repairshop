@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useToast } from "@/hooks/use-toast";
 import { useAction } from "next-safe-action/hooks";
-import { saveCustomerAction } from "@/actions/saveCustomerAction";
+import { saveCustomerAction } from "@/lib/dal/actions/saveCustomerAction";
 import { LoaderCircle } from "lucide-react";
 import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
 

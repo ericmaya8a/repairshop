@@ -1,5 +1,5 @@
 import { BackButton } from "@/components/BackButton";
-import { getCustomer } from "@/lib/queries/getCustomer";
+import { getCustomer } from "@/lib/dal/queries/getCustomer";
 import { CustomerForm } from "./CustomerForm";
 
 export async function generateMetadata({

@@ -2,8 +2,8 @@
 
 import { db } from "@/db";
 import { customers } from "@/db/schema";
+import { validateIsAuthenticated } from "@/lib/serverUtils";
 import { ilike, or, sql } from "drizzle-orm";
-import { validateIsAuthenticated } from "../serverUtils";
 
 export async function getCustomerSearchResult(searchText: string) {
   await validateIsAuthenticated();

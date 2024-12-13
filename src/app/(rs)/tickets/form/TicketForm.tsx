@@ -1,6 +1,6 @@
 "use client";
 
-import { saveTicketAction } from "@/actions/saveTicketAction";
+import { saveTicketAction } from "@/lib/dal/actions/saveTicketAction";
 import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
 import {
   CheckboxWithLabel,

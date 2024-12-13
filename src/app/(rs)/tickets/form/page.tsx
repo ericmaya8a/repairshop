@@ -1,6 +1,6 @@
 import { BackButton } from "@/components/BackButton";
-import { getCustomer } from "@/lib/queries/getCustomer";
-import { getTicket } from "@/lib/queries/getTicket";
+import { getCustomer } from "@/lib/dal/queries/getCustomer";
+import { getTicket } from "@/lib/dal/queries/getTicket";
 import { TicketForm } from "./TicketForm";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Users, init as kindeInit } from "@kinde/management-api-js";

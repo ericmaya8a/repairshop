@@ -1,7 +1,7 @@
 import { SearchForm } from "@/components/SearchForm";
 import { urls } from "@/constants";
-import { getOpenTickets } from "@/lib/queries/getOpenTickets";
-import { getTicketSearchResults } from "@/lib/queries/getTicketSearchResults";
+import { getOpenTickets } from "@/lib/dal/queries/getOpenTickets";
+import { getTicketSearchResults } from "@/lib/dal/queries/getTicketSearchResults";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
