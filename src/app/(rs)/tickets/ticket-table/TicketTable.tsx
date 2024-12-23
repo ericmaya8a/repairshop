@@ -12,18 +12,22 @@ import {
 import { urls } from "@/constants";
 import { TicketSearchResultsType } from "@/lib/dal/queries/getTicketSearchResults";
 import {
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFacetedUniqueValues,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { Pagination } from "./Pagination";
 import { columns } from "./columns";
+import { Filter } from "@/components/react-table/Filter";
+import { usePolling } from "@/hooks/usePolling";
 
 interface TicketTableProps {
   data: TicketSearchResultsType;
@@ -33,27 +37,32 @@ export type RowType = TicketSearchResultsType[0];
 
 export function TicketTable({ data }: TicketTableProps) {
   const router = useRouter();
-  // const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const searchParams = useSearchParams();
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "ticketDate", desc: false },
   ]);
+  usePolling(searchParams.get("searchText"), 300000);
+  const pageIndex = useMemo(() => {
+    const page = searchParams.get("page");
+    return page ? parseInt(page) - 1 : 0;
+  }, [searchParams]);
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
-      // columnFilters,
-    },
-    initialState: {
+      columnFilters,
       pagination: {
+        pageIndex,
         pageSize: 10,
       },
     },
-    // onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    // getFilteredRowModel: getFilteredRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -62,6 +71,18 @@ export function TicketTable({ data }: TicketTableProps) {
     router.push(`${urls.TICKETS}/form?ticketId=${id}`);
   }
 
+  useEffect(() => {
+    const currentPageIndex = table.getState().pagination.pageIndex;
+    const pageCount = table.getPageCount();
+
+    if (pageCount <= currentPageIndex && currentPageIndex > 0) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", "1");
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table.getState().columnFilters]);
+
   return (
     <div className="flex flex-col gap-4">
       <TableWrapper>
@@ -69,7 +90,11 @@ export function TicketTable({ data }: TicketTableProps) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead className="bg-secondary p-1" key={header.id}>
+                <TableHead
+                  className="bg-secondary p-1"
+                  style={{ width: header.getSize() }}
+                  key={header.id}
+                >
                   <div>
                     {header.isPlaceholder
                       ? null
@@ -78,11 +103,16 @@ export function TicketTable({ data }: TicketTableProps) {
                           header.getContext()
                         )}
                   </div>
-                  {/* {header.column.getCanFilter() ? (
+                  {header.column.getCanFilter() ? (
                     <div className="grid place-content-center">
-                      <Filter column={header.column} />
+                      <Filter
+                        column={header.column}
+                        filteredRows={table
+                          .getFilteredRowModel()
+                          .rows.map((row) => row.getValue(header.column.id))}
+                      />
                     </div>
-                  ) : null} */}
+                  ) : null}
                 </TableHead>
               ))}
             </TableRow>
@@ -110,7 +140,7 @@ export function TicketTable({ data }: TicketTableProps) {
         </TableBody>
       </TableWrapper>
 
-      <Pagination table={table} />
+      <Pagination table={table} searchParams={searchParams} />
     </div>
   );
 }

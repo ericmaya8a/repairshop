@@ -1,5 +1,6 @@
 "use client";
 
+import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
 import {
   CheckboxWithLabel,
   InputWithLabel,
@@ -9,27 +10,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { StatesArray } from "@/constants/StatesArray";
+import { useToast } from "@/hooks/use-toast";
+import { saveCustomerAction } from "@/lib/dal/actions/saveCustomerAction";
 import {
   insertCustomerSchema,
   insertCustomerSchemaType,
   selectCustomerSchemaType,
 } from "@/zod-schemas/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import { useToast } from "@/hooks/use-toast";
-import { useAction } from "next-safe-action/hooks";
-import { saveCustomerAction } from "@/lib/dal/actions/saveCustomerAction";
 import { LoaderCircle } from "lucide-react";
-import { DisplayServerActionResponse } from "@/components/DisplayServerActionResponse";
+import { useAction } from "next-safe-action/hooks";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 interface CustomerFormProps {
   customer?: selectCustomerSchemaType;
+  isManager?: boolean;
 }
 
-export function CustomerForm({ customer }: CustomerFormProps) {
-  const { getPermission, isLoading } = useKindeBrowserClient();
+export function CustomerForm({
+  customer,
+  isManager = false,
+}: CustomerFormProps) {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const hasCustomerId = searchParams.has("customerId");
   const { execute, result, isPending, reset } = useAction(saveCustomerAction, {
     onSuccess({ data }) {
       if (data?.message)
@@ -47,25 +53,41 @@ export function CustomerForm({ customer }: CustomerFormProps) {
       });
     },
   });
-  const isManager = !isLoading && getPermission("manager")?.isGranted;
   const formTitle = customer?.id
     ? `Edit Customer #${customer.id}`
     : "New Customer Form";
 
-  const defaultValues: insertCustomerSchemaType = {
-    id: customer?.id ?? 0,
-    firstName: customer?.firstName ?? "",
-    lastName: customer?.lastName ?? "",
-    address1: customer?.address1 ?? "",
-    address2: customer?.address2 ?? "",
-    city: customer?.city ?? "",
-    state: customer?.state ?? "",
-    zip: customer?.zip ?? "",
-    phone: customer?.phone ?? "",
-    email: customer?.email ?? "",
-    notes: customer?.notes ?? "",
-    active: customer?.active ?? true,
+  const emptyValues: insertCustomerSchemaType = {
+    id: 0,
+    firstName: "",
+    lastName: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
+    email: "",
+    notes: "",
+    active: true,
   };
+
+  const defaultValues: insertCustomerSchemaType = hasCustomerId
+    ? {
+        id: customer?.id ?? 0,
+        firstName: customer?.firstName ?? "",
+        lastName: customer?.lastName ?? "",
+        address1: customer?.address1 ?? "",
+        address2: customer?.address2 ?? "",
+        city: customer?.city ?? "",
+        state: customer?.state ?? "",
+        zip: customer?.zip ?? "",
+        phone: customer?.phone ?? "",
+        email: customer?.email ?? "",
+        notes: customer?.notes ?? "",
+        active: customer?.active ?? true,
+      }
+    : emptyValues;
 
   const form = useForm<insertCustomerSchemaType>({
     mode: "onBlur",
@@ -81,6 +103,11 @@ export function CustomerForm({ customer }: CustomerFormProps) {
   const submitForm = async (data: insertCustomerSchemaType) => {
     execute(data);
   };
+
+  useEffect(() => {
+    form.reset(hasCustomerId ? defaultValues : emptyValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCustomerId]);
 
   return (
     <div className="flex flex-col gap-1 sm:px-8">
@@ -138,9 +165,7 @@ export function CustomerForm({ customer }: CustomerFormProps) {
               className="h-40"
             />
 
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : isManager && customer?.id ? (
+            {isManager && customer?.id ? (
               <CheckboxWithLabel<insertCustomerSchemaType>
                 fieldTitle="Active"
                 nameInSchema="active"

@@ -2,7 +2,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { urls } from "@/constants";
 import { getCustomerSearchResult } from "@/lib/dal/queries/getCustomerSearchResults";
 import { Metadata } from "next";
-import { CustomerTable } from "./CustomerTable";
+import { CustomerTable } from "./customer-table/CustomerTable";
 
 export const metadata: Metadata = {
   title: "Customer Search",

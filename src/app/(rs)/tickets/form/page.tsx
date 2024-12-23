@@ -76,10 +76,15 @@ export default async function TicketFormPage({
       kindeInit();
       const { users } = await Users.getUsers();
       const techs = users
-        ? users.map((user) => ({ id: user.email!, description: user.email! }))
+        ? users.map((user) => ({
+            id: user.email!.toLowerCase(),
+            description: user.email!.toLowerCase(),
+          }))
         : [];
 
-      return <TicketForm customer={customer} techs={techs} />;
+      return (
+        <TicketForm customer={customer} techs={techs} isManager={isManager} />
+      );
     } else {
       return <TicketForm customer={customer} />;
     }

@@ -17,11 +17,11 @@ export function Header() {
     <header className="animate-slide bg-background h-12 p-2 border-b sticky top-0 z-20">
       <nav className="flex h-8 items-center justify-between w-full">
         <div className="flex items-center gap-2">
-          <NavButton href={urls.HOME} label="Home" icon={HomeIcon} />
+          <NavButton href={urls.TICKETS} label="Home" icon={HomeIcon} />
 
           <div className="hidden sm:block">
             <Link
-              href={urls.HOME}
+              href={urls.TICKETS}
               className="flex justify-center items-center gap-2 ml-0"
               title="Home"
             >

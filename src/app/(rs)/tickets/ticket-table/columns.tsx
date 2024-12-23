@@ -21,6 +21,14 @@ const columnHeadersArray: Array<keyof RowType> = [
 
 const columnHelper = createColumnHelper<RowType>();
 
+const columnWidths = {
+  completed: 100,
+  ticketDate: 150,
+  title: 250,
+  tech: 225,
+  email: 225,
+};
+
 export const columns = columnHeadersArray.map((columnName) => {
   return columnHelper.accessor(
     (row) => {
@@ -39,6 +47,7 @@ export const columns = columnHeadersArray.map((columnName) => {
     },
     {
       id: columnName,
+      size: columnWidths[columnName as keyof typeof columnWidths] ?? undefined,
       header: ({ column }) => (
         <Button
           variant="ghost"

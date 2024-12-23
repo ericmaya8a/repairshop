@@ -30,6 +30,7 @@ interface TicketFormProps {
     description: string;
   }[];
   isEditable?: boolean;
+  isManager?: boolean;
 }
 
 export function TicketForm({
@@ -37,6 +38,7 @@ export function TicketForm({
   ticket,
   techs,
   isEditable = true,
+  isManager = false,
 }: TicketFormProps) {
   const { toast } = useToast();
   const { execute, result, isPending, reset } = useAction(saveTicketAction, {
@@ -56,7 +58,6 @@ export function TicketForm({
       });
     },
   });
-  const isManager = Array.isArray(techs);
   const formTitle =
     ticket?.id && isEditable
       ? `Edit Ticket #${ticket.id}`
@@ -70,7 +71,7 @@ export function TicketForm({
     title: ticket?.title ?? "",
     description: ticket?.description ?? "",
     completed: ticket?.completed ?? false,
-    tech: ticket?.tech ?? "new-ticket@example.com",
+    tech: ticket?.tech.toLowerCase() ?? "new-ticket@example.com",
   };
 
   const form = useForm<insertTicketSchemaType>({
@@ -103,7 +104,7 @@ export function TicketForm({
               nameInSchema="title"
               disabled={!isEditable}
             />
-            {isManager ? (
+            {isManager && techs ? (
               <SelectWithLabel<insertTicketSchemaType>
                 fieldTitle="Tech ID"
                 nameInSchema="tech"

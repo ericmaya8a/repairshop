@@ -9,51 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { urls } from "@/constants";
+import { cn } from "@/lib/utils";
 import { selectCustomerSchemaType } from "@/zod-schemas/customer";
 import {
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
+import { columns } from "./columns";
 
 interface CustomerTableProps {
   data: selectCustomerSchemaType[];
 }
 
 export function CustomerTable({ data }: CustomerTableProps) {
-  const router = useRouter();
-  const columnHeadersArray: Array<keyof selectCustomerSchemaType> = [
-    "firstName",
-    "lastName",
-    "email",
-    "phone",
-    "city",
-    "zip",
-  ];
-  const columnHelper = createColumnHelper<selectCustomerSchemaType>();
-  const columns = columnHeadersArray.map((columnName) =>
-    columnHelper.accessor(columnName, {
-      id: columnName,
-      header:
-        columnName === columnHeadersArray[0]
-          ? "First Name"
-          : columnName === columnHeadersArray[1]
-          ? "Last Name"
-          : `${columnName[0].toUpperCase()}${columnName.slice(1)}`,
-    })
-  );
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  function handleRowClick(id: number) {
-    router.push(`${urls.CUSTOMERS}/form?customerId=${id}`);
-  }
 
   return (
     <TableWrapper>
@@ -61,15 +35,27 @@ export function CustomerTable({ data }: CustomerTableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <TableHead key={header.id} className="bg-secondary">
-                <>
+              <TableHead
+                key={header.id}
+                className={cn(
+                  "bg-secondary",
+                  header.id === "actions" ? "w-12" : ""
+                )}
+              >
+                <div
+                  className={`${
+                    header.id === "actions"
+                      ? "flex justify-center items-center"
+                      : ""
+                  }`}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                </>
+                </div>
               </TableHead>
             ))}
           </TableRow>
@@ -80,8 +66,7 @@ export function CustomerTable({ data }: CustomerTableProps) {
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className="cursor-pointer hover:bg-border/25 dark:hover:bg-ring/40"
-              onClick={() => handleRowClick(row.original.id)}
+              className="hover:bg-border/25 dark:hover:bg-ring/40"
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id} className="border">
